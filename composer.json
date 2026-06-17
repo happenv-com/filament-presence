@@ -1,8 +1,19 @@
 {
     "name": "happenv-com/filament-presence",
+    "homepage": "https://happenv.com",
     "description": "Live presence avatars and session log for Filament panels.",
     "license": "MIT",
     "type": "library",
+    "authors": [
+        {
+            "name": "Happenv sp. z o.o.",
+            "homepage": "https://happenv.com"
+        },
+        {
+            "name": "webard",
+            "homepage": "https://webard.me"
+        }
+    ],
     "keywords": [
         "laravel",
         "filament",
