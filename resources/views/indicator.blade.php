@@ -13,6 +13,11 @@
         'showSelf' => $showSelf,
         'heartbeatInterval' => $heartbeat,
         'avatarSize' => $avatarSize,
+        // Reload the tab when the log routes report the session is gone (401 /
+        // 419), so it lands on the login screen instead of sitting on a page
+        // whose every request now fails. Hosts that handle expiry themselves
+        // can switch this off and listen for `filament-presence:session-expired`.
+        'reloadOnSessionExpiry' => (bool) config('filament-presence.reload_on_session_expiry', true),
         // Mirror Filament's generate_href_html(): in SPA mode the tooltip link
         // navigates via wire:navigate (.hover when prefetching) instead of a full
         // page load.
@@ -82,6 +87,7 @@
                     ownStatus: 'online',
                     currentUrl: null,
                     started: false,
+                    sessionEnded: false,
                     navHandler: null,
                     urlHandler: null,
                     statusHandler: null,
@@ -402,7 +408,7 @@
                         }
                     },
                     post(url, keepalive = false) {
-                        if (!url) return
+                        if (!url || this.sessionEnded) return
                         return fetch(url, {
                             method: 'POST',
                             credentials: 'same-origin',
@@ -416,7 +422,48 @@
                                     )?.content || '',
                             },
                             body: JSON.stringify(this.payload()),
-                        }).catch(() => {})
+                        })
+                            .then((response) => {
+                                // The log routes sit behind `auth`, so once the
+                                // session dies they answer 401 (guest) or 419
+                                // (stale CSRF token) with an HTML redirect body
+                                // — and keep doing so for as long as the tab
+                                // stays open, because nothing ever stops the
+                                // heartbeat. A tab left overnight therefore
+                                // hammers the endpoint every heartbeatInterval
+                                // until it is closed. A rejected fetch is a
+                                // transient network blip and must NOT count:
+                                // only an actual auth verdict ends the session.
+                                if (
+                                    response.status === 401 ||
+                                    response.status === 419
+                                ) {
+                                    this.endSession()
+                                }
+
+                                return response
+                            })
+                            .catch(() => {})
+                    },
+
+                    // The session is gone. Tear down everything this component
+                    // owns, tell the host app (which may want to show its own
+                    // "signed out" affordance), and — unless the host opted out
+                    // — reload, which lands the tab on the login screen instead
+                    // of leaving a page whose every request now fails.
+                    endSession() {
+                        if (this.sessionEnded) return
+                        this.sessionEnded = true
+
+                        this.leaveRoom()
+
+                        window.dispatchEvent(
+                            new Event('filament-presence:session-expired'),
+                        )
+
+                        if (this.config?.reloadOnSessionExpiry !== false) {
+                            window.location.reload()
+                        }
                     },
                     logEnter() {
                         this.post(this.config?.routes?.enter)
