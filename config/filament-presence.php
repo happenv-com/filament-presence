@@ -29,6 +29,13 @@ return [
     // Auth guard used by the HTTP log routes (null = application default guard).
     'guard' => null,
 
+    // The log routes sit behind `auth`, so an expired session turns every
+    // heartbeat into a 401/419 that repeats until the tab is closed. The client
+    // stops its own loop either way; with this on it also reloads, landing the
+    // tab on the login screen. Switch it off to handle expiry yourself — the
+    // client always dispatches `filament-presence:session-expired` on window.
+    'reload_on_session_expiry' => true,
+
     // Default middleware group applied to the enter/heartbeat/leave routes.
     'middleware' => ['web', 'auth'],
 
