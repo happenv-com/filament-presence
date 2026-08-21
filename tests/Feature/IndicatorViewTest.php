@@ -61,3 +61,42 @@ describe('session expiry', function (): void {
             ->and($render())->toContain('filament-presence:session-expired');
     });
 });
+
+describe('page header layout', function (): void {
+    $render = fn (): string => view('filament-presence::indicator', [
+        'roomKey' => 'products-abc',
+        'channelName' => 'filament-presence.products-abc',
+        'url' => 'https://app/admin/products',
+        'label' => 'Products',
+        'currentUserId' => '1',
+    ])->render();
+
+    // Regression: seating the strip beside the heading must not move the page
+    // description up next to the title. The first attempt turned the header's
+    // content column into a wrapping flex row and pushed the subheading down with
+    // `flex-basis: 100%` — which a max-width silently defeats, because a max-width
+    // CLAMPS the flex base size that decides line breaks and Filament spells
+    // `.fi-header-subheading` with `max-w-2xl`. Every header wider than
+    // heading + 42rem therefore seated both on one line. Narrow viewports looked
+    // right, so it shipped; the host application saw it on every page.
+    it('leaves the header content column a block, so the subheading keeps its own row', function () use ($render): void {
+        $html = $render();
+
+        expect($html)->toContain('.fi-header > div:has(.fi-presence-strip) {
+            display: block;
+        }')
+            // The declarations, not the prose: the comment above the rule names
+            // both of them while explaining what went wrong.
+            ->and($html)->not->toContain('flex-wrap: wrap;')
+            ->and($html)->not->toContain('flex-basis: 100%;')
+            ->and($html)->not->toContain('.fi-header-subheading {');
+    });
+
+    it('seats the heading and the indicator on one line as inline-level boxes', function () use ($render): void {
+        expect($render())->toContain('.fi-header > div:has(.fi-presence-strip) > .fi-header-heading,
+        .fi-header > div:has(.fi-presence-strip) > :has(.fi-presence-strip) {
+            display: inline-block;
+            vertical-align: middle;
+        }');
+    });
+});

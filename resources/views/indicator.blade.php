@@ -44,16 +44,26 @@
     <style>
         /* The strip is rendered right after the heading (PAGE_HEADER_HEADING_AFTER)
            rather than teleported into it, so it survives Livewire morphs. To still
-           sit inline with the heading, the header's content column becomes a flex
-           row while breadcrumbs + subheading keep their own full-width rows. */
+           sit inline with the heading, the heading and this indicator become
+           inline-level boxes; the column around them stays a block, so the
+           breadcrumbs and the subheading keep the rows Filament gives them.
+
+           It used to turn that column into a wrapping flex row instead, pushing the
+           breadcrumbs and the subheading onto rows of their own with
+           `flex-basis: 100%`. That worked for the breadcrumbs and silently failed
+           for the subheading: Filament spells `.fi-header-subheading` with
+           `max-w-2xl`, and a max-width CLAMPS the flex base size that decides line
+           breaks — so the paragraph's hypothetical main size is 42rem, not 100%,
+           and every header wider than heading + 42rem seated the page description
+           NEXT TO the title instead of under it. Narrow viewports looked right,
+           which is how it shipped. */
         .fi-header > div:has(.fi-presence-strip) {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
+            display: block;
         }
-        .fi-header > div:has(.fi-presence-strip) > .fi-breadcrumbs,
-        .fi-header > div:has(.fi-presence-strip) > .fi-header-subheading {
-            flex-basis: 100%;
+        .fi-header > div:has(.fi-presence-strip) > .fi-header-heading,
+        .fi-header > div:has(.fi-presence-strip) > :has(.fi-presence-strip) {
+            display: inline-block;
+            vertical-align: middle;
         }
 
         .fi-presence-host {
