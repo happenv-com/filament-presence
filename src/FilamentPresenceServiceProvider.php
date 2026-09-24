@@ -31,6 +31,7 @@ class FilamentPresenceServiceProvider extends PackageServiceProvider
             ->name('filament-presence')
             ->hasConfigFile()
             ->hasViews('filament-presence')
+            ->hasTranslations()
             ->hasRoute('web')
             ->hasMigration('create_presence_sessions_table')
             ->hasCommand(CloseStalePresenceSessions::class);

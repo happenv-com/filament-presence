@@ -101,6 +101,39 @@ describe('page header layout', function (): void {
     });
 });
 
+describe('translations', function (): void {
+    $render = fn (): string => view('filament-presence::indicator', [
+        'roomKey' => 'products-abc',
+        'channelName' => 'filament-presence.products-abc',
+        'url' => 'https://app/admin/products',
+        'label' => 'Products',
+        'currentUserId' => '1',
+    ])->render();
+
+    it('passes the strings the browser renders in the app locale', function () use ($render): void {
+        app()->setLocale('pl');
+        $html = $render();
+
+        preg_match('/<script type="application\/json" data-filament-presence-config>(.*?)<\/script>/s', $html, $carrier);
+
+        expect(json_decode($carrier[1], true)['i18n'])->toBe(['goToView' => 'przejdź do tego widoku', 'user' => 'Użytkownik'])
+            ->and($html)->toContain('this.config?.i18n?.goToView')
+            ->and($html)->toContain('this.config?.i18n?.user');
+    });
+
+    it('ships every string in every locale Filament ships', function (string $locale): void {
+        $english = require __DIR__ . '/../../resources/lang/en/presence.php';
+        $file = __DIR__ . "/../../resources/lang/{$locale}/presence.php";
+
+        expect($file)->toBeFile()
+            ->and(array_keys(require $file))->toEqual(array_keys($english))
+            ->and(array_filter(require $file))->toHaveCount(count($english));
+    })->with(fn (): array => array_map(
+        basename(...),
+        glob(__DIR__ . '/../../vendor/filament/filament/resources/lang/*', GLOB_ONLYDIR) ?: [],
+    ));
+});
+
 it('announces location and status once subscribed, and asks members for theirs', function (): void {
     $html = view('filament-presence::indicator', [
         'roomKey' => 'products-abc',
