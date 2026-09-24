@@ -114,7 +114,8 @@ it('announces location and status once subscribed, and asks members for theirs',
     // so the announcements live in here(), not straight after Echo.join().
     $here = substr($html, strpos($html, '.here((users) => {'), 1200);
 
-    expect($here)->toContain('this.announceLocation()')
+    expect($here)->toContain('this.ownStatus = this.currentStatus()')
+        ->and($here)->toContain('this.announceLocation()')
         ->and($here)->toContain('this.announceStatus()')
         ->and($here)->toContain("whisper('state-requested'")
         // Members already in the room answer the request — `joining` does not

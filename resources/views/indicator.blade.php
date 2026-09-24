@@ -162,8 +162,6 @@
                         this.currentUrl = window.location.href
                         this.config.url = window.location.href
 
-                        this.ownStatus = this.currentStatus()
-
                         this.presenceChannel = window.Echo.join(this.config.channel)
                             .here((users) => {
                                 this.members = users.map((u) => this.decorate(u))
@@ -174,6 +172,9 @@
                                 // status. Announce them, and ask everyone for
                                 // theirs — `joining` does not fire for them when
                                 // this user already has another tab in the room.
+                                // The status is read now, not at join(): focus may
+                                // have moved while the channel was authorised.
+                                this.ownStatus = this.currentStatus()
                                 this.announceLocation()
                                 this.announceStatus()
                                 this.presenceChannel?.whisper('state-requested', {
