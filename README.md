@@ -1,5 +1,12 @@
 # Filament Presence
 
+[![Latest Version](https://img.shields.io/github/v/release/happenv-com/filament-presence?style=flat-square&label=version)](https://github.com/happenv-com/filament-presence/releases)
+[![Tests](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-presence/tests.yml?label=tests&style=flat-square)](https://github.com/happenv-com/filament-presence/actions/workflows/tests.yml)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-presence/phpstan.yml?label=phpstan&style=flat-square)](https://github.com/happenv-com/filament-presence/actions/workflows/phpstan.yml)
+[![Quality](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-presence/quality.yml?label=code%20quality&style=flat-square)](https://github.com/happenv-com/filament-presence/actions/workflows/quality.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/happenv-com/filament-presence.svg?style=flat-square)](https://packagist.org/packages/happenv-com/filament-presence)
+[![License](https://img.shields.io/github/license/happenv-com/filament-presence.svg?style=flat-square)](LICENSE.md)
+
 Live "who's on this page" avatars for Filament panels, plus a durable session log
 (enter/leave timestamps and dwell time) exposed as domain events.
 
@@ -7,25 +14,36 @@ Each page renders a stacked row of avatars next to its heading, updated in real 
 as users open, leave, or switch away from the page. Built on Laravel broadcasting
 (Echo presence channels), so it works with Reverb, Pusher, or Ably.
 
-## Features
+```php
+use Happenv\FilamentPresence\FilamentPresencePlugin;
 
-- Avatars injected next to the page heading on every page type (list / create / edit / custom) — no per-page wiring.
-- Real-time join / leave via Echo presence channels.
-- **Online / away** status ring (green / amber) driven by the Page Visibility API — switching tab or window marks a user away; closing the tab removes them.
-- Tooltip with the user's name and an optional "go to their view" link (their exact URL, only shown when it differs from yours).
-- Durable session log with swappable drivers (`database`, `activitylog`, or `null`) and `UserEnteredPage` / `UserLeftPage` events.
-- Per-page opt-in/opt-out.
-- RTL-aware layout and a configurable avatar size.
-- Every moving part is resolved from the container, so you can swap channel naming, member data, the room-key strategy, the recorder, and the model without touching package code.
+$panel->plugin(FilamentPresencePlugin::make());
+```
+
+## Key features
+
+- **Presence on every page, with no per-page wiring.** Avatars are injected next to the page heading on every page type (list / create / edit / custom).
+- **Real-time join and leave.** Native Echo presence channels add and remove avatars the moment users open or close a page.
+- **Online / away status.** A green / amber ring driven by the Page Visibility API marks a user away when they switch tab or window; closing the tab removes them.
+- **Jump to where a colleague is.** The tooltip shows the user's name and an optional "go to their view" link to their exact URL, shown only when it differs from yours.
+- **A durable session log.** Swappable drivers (`database`, `activitylog`, or `null`) record every visit and dispatch `UserEnteredPage` / `UserLeftPage` events — see [Session log & events](#session-log--events).
+- **Per-page opt-in / opt-out.** One trait method turns presence on or off for a page — see [Per-page opt-in](#per-page-opt-in).
+- **Fits any layout.** The layout is RTL-aware and the avatar size is configurable.
+- **Every moving part is swappable.** Channel naming, member data, the room-key strategy, the recorder and the model are resolved from the container, so you can replace them without touching package code — see [Extension points](#extension-points).
 
 ## Requirements
 
-- PHP 8.3+
-- Filament v4 or v5
-- Laravel 11 / 12 / 13
-- A configured Laravel Echo client (`window.Echo`) backed by Reverb, Pusher, or Ably, with broadcasting authentication set up.
+| Package  | Versions                        |
+|----------|---------------------------------|
+| PHP      | 8.3 – 8.5                       |
+| Laravel  | 11, 12, 13 (CI runs 12 and 13)  |
+| Filament | 4 (`^4.11`), 5 (`^5.6`)         |
+
+The avatars also need a configured Laravel Echo client (`window.Echo`) backed by Reverb, Pusher, or Ably, with broadcasting authentication set up.
 
 ## Installation
+
+Install the package via Composer:
 
 ```bash
 composer require happenv-com/filament-presence
@@ -38,13 +56,14 @@ php artisan vendor:publish --tag=filament-presence-migrations
 php artisan migrate
 ```
 
-Optionally publish the config:
+> [!IMPORTANT]
+> If you have not set up a custom theme and are using Filament Panels, follow the instructions in the [Filament docs](https://filamentphp.com/docs/5.x/styling/overview#creating-a-custom-theme) first.
 
-```bash
-php artisan vendor:publish --tag=filament-presence-config
+Add the package's views to your theme's CSS file, so Tailwind generates the classes they use:
+
+```css
+@source '../../../../vendor/happenv-com/filament-presence/resources/**/*.blade.php';
 ```
-
-## Usage
 
 Register the plugin on your panel:
 
@@ -61,17 +80,13 @@ public function panel(Panel $panel): Panel
 That's it — every page in the panel now shows presence avatars. By default member
 data comes from the authenticated user's `getFilamentAvatarUrl()` and `name`.
 
-## How it works
-
-Two decoupled layers:
-
-- **Live (ephemeral):** native Echo presence channels (`here` / `joining` / `leaving`) drive the avatars. No database involved.
-- **Durable:** a `PresenceRecorder` is fed by lightweight `enter` / `heartbeat` / `leave` HTTP calls and records each visit. A scheduled command closes sessions whose heartbeat went stale (closed laptop, crash) so timestamps stay accurate even without a clean exit.
-
-The two layers are independent: avatars keep working if the log backend is down, and
-the log stays correct even when the browser never fires `beforeunload`.
-
 ## Configuration
+
+Optionally publish the config:
+
+```bash
+php artisan vendor:publish --tag=filament-presence-config
+```
 
 `config/filament-presence.php`:
 
@@ -86,11 +101,24 @@ the log stays correct even when the browser never fires `beforeunload`.
 | `heartbeat_interval` | `30` | Client heartbeat cadence (seconds). |
 | `stale_after_seconds` | `90` | Server-side cutoff for closing stale sessions. |
 | `guard` | `null` | Auth guard for the log routes (`null` = default guard). |
+| `reload_on_session_expiry` | `true` | Reload the tab (onto the login screen) once the session has expired. The client always stops its loop and dispatches `filament-presence:session-expired` on `window`; switch this off to handle expiry yourself. |
 | `middleware` | `['web', 'auth']` | Middleware group for the log routes. |
 | `route_prefix` | `filament-presence` | URL prefix for the log routes. |
 | `register_default_channel` | `true` | Register the bundled presence channel (disable if you register your own). |
 
-## Per-page opt-in
+## Usage
+
+### How it works
+
+Two decoupled layers:
+
+- **Live (ephemeral):** native Echo presence channels (`here` / `joining` / `leaving`) drive the avatars. No database involved.
+- **Durable:** a `PresenceRecorder` is fed by lightweight `enter` / `heartbeat` / `leave` HTTP calls and records each visit. A scheduled command closes sessions whose heartbeat went stale (closed laptop, crash) so timestamps stay accurate even without a clean exit.
+
+The two layers are independent: avatars keep working if the log backend is down, and
+the log stays correct even when the browser never fires `beforeunload`.
+
+### Per-page opt-in
 
 Toggle presence per page with the `InteractsWithPresence` trait:
 
@@ -110,7 +138,7 @@ class EditOrder extends EditRecord
 
 Without the trait, pages follow `default_opt_in`.
 
-## Session log & events
+### Session log & events
 
 The active recorder records every visit and dispatches plain Laravel events you can
 listen to:
@@ -129,7 +157,7 @@ Drivers:
 - `activitylog` — logs `entered` / `left` activities via `spatie/laravel-activitylog` (install it to use this driver).
 - `null` — live avatars only, no persistence.
 
-### Closing stale sessions
+#### Closing stale sessions
 
 Schedule the cleanup command so ungraceful exits are still closed:
 
@@ -138,7 +166,7 @@ Schedule the cleanup command so ungraceful exits are still closed:
 Schedule::command('presence:close-stale')->everyMinute();
 ```
 
-## Extension points
+### Extension points
 
 Bind your own implementations in a service provider; the package binds defaults with
 `bindIf`, so your bindings always win.
@@ -158,7 +186,7 @@ $this->app->bind(
 );
 ```
 
-### Custom presence channel
+#### Custom presence channel
 
 The package registers `filament-presence.{roomKey}` out of the box. To use your own
 channel (e.g. tenant-namespaced), set `register_default_channel` to `false` and
@@ -176,16 +204,48 @@ Broadcast::channel('my-prefix.{roomKey}', fn ($user, string $roomKey) =>
 Then return the matching name from your `ResolvesPresenceChannel` so the client
 subscribes to the same channel.
 
-## Testing
+## Development
 
 ```bash
-composer install
-./vendor/bin/pest
+composer test          # unit and feature tests
+composer phpstan       # static analysis
+composer cs            # fix code style: composer normalize, Rector, Pint
+composer ci            # everything CI checks, locally
 ```
 
 The suite runs on Testbench with an in-memory SQLite database — no Filament panel
 required.
 
+## Upgrading
+
+Breaking changes and how to migrate are described in [UPGRADING](UPGRADING.md) for every major version.
+
+## Changelog
+
+See [CHANGELOG](CHANGELOG.md) and [GitHub releases](https://github.com/happenv-com/filament-presence/releases) for what has changed recently.
+
+## Contributing
+
+See [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+
+## Security vulnerabilities
+
+Please review [our security policy](.github/SECURITY.md) on how to report security vulnerabilities.
+
+## Credits
+
+- [Happenv sp. z o.o.](https://happenv.com)
+- [webard](https://github.com/webard)
+- [All contributors](../../contributors)
+
 ## License
 
-MIT.
+The MIT License (MIT). See [License File](LICENSE.md) for more information.
+
+---
+
+<p align="center">
+    <a href="https://happenv.com">
+        <img src="art/happenv-logo.png" alt="Happenv" width="400">
+    </a>
+</p>
