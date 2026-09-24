@@ -405,7 +405,7 @@
                                     ? ' wire:navigate.hover'
                                     : ' wire:navigate'
                                 : ''
-                            html += `<br><a href="${escape(link)}"${nav} class="text-primary-400 underline">↗ ${escape(member.label || this.config?.i18n?.goToView || 'go to their view')}</a>`
+                            html += `<br><a href="${escape(link)}"${nav} class="text-primary-600 underline dark:text-primary-400">↗ ${escape(member.label || this.config?.i18n?.goToView || 'go to their view')}</a>`
                         }
                         return html
                     },
@@ -524,7 +524,7 @@
             <template x-for="(member, index) in visibleMembers" :key="member.id">
                 <a
                     :href="safeUrl(member.profileUrl) || '#'"
-                    x-tooltip.html.interactive="tooltipFor(member)"
+                    x-tooltip.html.interactive="{ content: tooltipFor(member), theme: $store.theme }"
                     class="block rounded-full ring-2 transition hover:z-10 hover:scale-110"
                     :class="statusRing(member)"
                     :style="`z-index:${20 - index};margin-inline-start:${index === 0 ? '0' : '-' + Math.round((config?.avatarSize ?? 22) * 0.36) + 'px'}`"
