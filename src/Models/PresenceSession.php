@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property string $session_token
  * @property string $user_id
+ * @property string $room_key
+ * @property string $url
+ * @property string|null $label
  * @property CarbonImmutable $entered_at
  * @property CarbonImmutable $last_seen_at
  * @property CarbonImmutable|null $left_at

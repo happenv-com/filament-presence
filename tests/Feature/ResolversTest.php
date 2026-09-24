@@ -22,7 +22,7 @@ it('authorize returns a member array (never true)', function (): void {
 
         public $name = 'Ada';
 
-        public function getFilamentAvatarUrl(): ?string
+        public function getFilamentAvatarUrl(): string
         {
             return 'https://cdn/a.png';
         }

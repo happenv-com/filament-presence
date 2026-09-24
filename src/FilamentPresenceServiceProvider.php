@@ -17,6 +17,7 @@ use Happenv\FilamentPresence\Support\DefaultChannelResolver;
 use Happenv\FilamentPresence\Support\DefaultMemberResolver;
 use Happenv\FilamentPresence\Support\DefaultRoomKeyDeriver;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Broadcast;
 use Spatie\LaravelPackageTools\Package;
@@ -48,12 +49,10 @@ class FilamentPresenceServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        $this->app->bind(PresenceRecorder::class, function (): PresenceRecorder {
-            return match (config('filament-presence.recorder', 'database')) {
-                'activitylog' => $this->app->make(ActivityLogRecorder::class),
-                'null' => $this->app->make(NullRecorder::class),
-                default => $this->app->make(DatabaseRecorder::class),
-            };
+        $this->app->bind(PresenceRecorder::class, fn (Application $app): PresenceRecorder => match (config('filament-presence.recorder', 'database')) {
+            'activitylog' => $app->make(ActivityLogRecorder::class),
+            'null' => $app->make(NullRecorder::class),
+            default => $app->make(DatabaseRecorder::class),
         });
 
         $router = $this->app->make(Router::class);

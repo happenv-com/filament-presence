@@ -18,7 +18,7 @@ use RuntimeException;
  */
 class ActivityLogRecorder implements PresenceRecorder
 {
-    private const CACHE_PREFIX = 'filament-presence:open:';
+    private const string CACHE_PREFIX = 'filament-presence:open:';
 
     public function __construct()
     {
