@@ -1,26 +1,39 @@
 {
     "name": "happenv-com/filament-presence",
-    "homepage": "https://happenv.com",
     "description": "Live presence avatars and session log for Filament panels.",
     "license": "MIT",
     "type": "library",
+    "keywords": [
+        "happenv",
+        "laravel",
+        "filamentphp",
+        "filament",
+        "filament-plugin",
+        "presence",
+        "reverb",
+        "websockets",
+        "filament-presence"
+    ],
     "authors": [
         {
             "name": "Happenv sp. z o.o.",
-            "homepage": "https://happenv.com"
+            "email": "code@happenv.com",
+            "homepage": "https://happenv.com",
+            "role": "Maintainer"
         },
         {
             "name": "webard",
-            "homepage": "https://webard.me"
+            "email": "code@webard.me",
+            "homepage": "https://github.com/webard",
+            "role": "Developer"
         }
     ],
-    "keywords": [
-        "laravel",
-        "filament",
-        "presence",
-        "reverb",
-        "websockets"
-    ],
+    "homepage": "https://github.com/happenv-com/filament-presence",
+    "support": {
+        "issues": "https://github.com/happenv-com/filament-presence/issues",
+        "source": "https://github.com/happenv-com/filament-presence",
+        "security": "https://github.com/happenv-com/filament-presence/security/policy"
+    },
     "require": {
         "php": "^8.3",
         "filament/filament": "^4.0 || ^5.0",
@@ -28,12 +41,23 @@
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
-        "orchestra/testbench": "^9.0 || ^10.0 || ^11.0",
-        "pestphp/pest": "^3.0"
+        "driftingly/rector-laravel": "^2.1",
+        "ergebnis/composer-normalize": "^2.48",
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.24",
+        "nunomaduro/collision": "^8.0",
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "pestphp/pest": "^4.0 || ^5.0",
+        "pestphp/pest-plugin-arch": "^4.0 || ^5.0",
+        "pestphp/pest-plugin-laravel": "^4.0 || ^5.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "rector/rector": "^2.1"
     },
     "suggest": {
         "spatie/laravel-activitylog": "Enables the activitylog presence recorder driver."
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Happenv\\FilamentPresence\\": "src/",
@@ -45,18 +69,59 @@
             "Happenv\\FilamentPresence\\Tests\\": "tests/"
         }
     },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true,
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    },
     "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Happenv\\FilamentPresence\\FilamentPresenceServiceProvider"
             ]
         }
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true,
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+    "scripts": {
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "ci": [
+            "@normalize-composer-test",
+            "@rector-test",
+            "@pint-test",
+            "@phpstan",
+            "@test"
+        ],
+        "cs": [
+            "@normalize-composer",
+            "@rector",
+            "@pint"
+        ],
+        "normalize-composer": "@composer normalize --ansi",
+        "normalize-composer-test": "@composer normalize --dry-run --ansi",
+        "phpstan": "phpstan analyse --ansi",
+        "pint": "pint",
+        "pint-test": "pint --test",
+        "rector": "rector process",
+        "rector-test": "rector process --dry-run",
+        "test": "pest --testsuite=Unit,Feature",
+        "test-coverage": "pest --testsuite=Unit,Feature --coverage"
+    },
+    "scripts-descriptions": {
+        "ci": "Runs every CI gate locally: composer.json normalization, Rector, Pint, PHPStan and the test suite.",
+        "cs": "Fixes code style: composer normalize, Rector, then Pint (Rector adds imports, Pint sorts them).",
+        "normalize-composer": "Normalizes composer.json.",
+        "normalize-composer-test": "Checks composer.json is normalized.",
+        "phpstan": "Runs PHPStan.",
+        "pint": "Formats the code with Pint.",
+        "pint-test": "Checks the code style with Pint.",
+        "rector": "Applies Rector refactorings.",
+        "rector-test": "Shows pending Rector refactorings.",
+        "test": "Runs the unit and feature tests.",
+        "test-coverage": "Runs the unit and feature tests with code coverage (needs pcov or Xdebug)."
     }
 }
