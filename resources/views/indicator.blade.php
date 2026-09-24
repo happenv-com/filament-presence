@@ -23,6 +23,11 @@
         // page load.
         'spaMode' => \Filament\Support\Facades\FilamentView::hasSpaMode(),
         'spaPrefetch' => \Filament\Support\Facades\FilamentView::hasSpaPrefetching(),
+        // The strings the indicator renders in the browser, in the app locale.
+        'i18n' => [
+            'goToView' => __('filament-presence::presence.go_to_view'),
+            'user' => __('filament-presence::presence.user'),
+        ],
         'routes' => [
             'enter' => route('filament-presence.enter'),
             'heartbeat' => route('filament-presence.heartbeat'),
@@ -384,13 +389,13 @@
                                     ? ' wire:navigate.hover'
                                     : ' wire:navigate'
                                 : ''
-                            html += `<br><a href="${escape(link)}"${nav} class="text-primary-400 underline">↗ ${escape(member.label || 'go to their view')}</a>`
+                            html += `<br><a href="${escape(link)}"${nav} class="text-primary-400 underline">↗ ${escape(member.label || this.config?.i18n?.goToView || 'go to their view')}</a>`
                         }
                         return html
                     },
 
                     decorate(user) {
-                        const name = user.name || 'User'
+                        const name = user.name || this.config?.i18n?.user || 'User'
                         return {
                             ...user,
                             name,
