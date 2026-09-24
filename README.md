@@ -1,5 +1,11 @@
 # Filament Presence
 
+<div class="filament-hidden">
+
+![Filament Presence](art/banner.png)
+
+</div>
+
 [![Latest Version](https://img.shields.io/github/v/release/happenv-com/filament-presence?style=flat-square&label=version)](https://github.com/happenv-com/filament-presence/releases)
 [![Tests](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-presence/tests.yml?label=tests&style=flat-square)](https://github.com/happenv-com/filament-presence/actions/workflows/tests.yml)
 [![PHPStan](https://img.shields.io/github/actions/workflow/status/happenv-com/filament-presence/phpstan.yml?label=phpstan&style=flat-square)](https://github.com/happenv-com/filament-presence/actions/workflows/phpstan.yml)
