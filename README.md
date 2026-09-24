@@ -28,6 +28,7 @@ $panel->plugin(FilamentPresencePlugin::make());
 - **Jump to where a colleague is.** The tooltip shows the user's name and an optional "go to their view" link to their exact URL, shown only when it differs from yours.
 - **A durable session log.** Swappable drivers (`database`, `activitylog`, or `null`) record every visit and dispatch `UserEnteredPage` / `UserLeftPage` events — see [Session log & events](#session-log--events).
 - **Per-page opt-in / opt-out.** One trait method turns presence on or off for a page — see [Per-page opt-in](#per-page-opt-in).
+- **64 languages.** The indicator's strings ship in every locale Filament ships — see [Translations](#translations).
 - **Fits any layout.** The layout is RTL-aware and the avatar size is configurable.
 - **Every moving part is swappable.** Channel naming, member data, the room-key strategy, the recorder and the model are resolved from the container, so you can replace them without touching package code — see [Extension points](#extension-points).
 
@@ -203,6 +204,18 @@ Broadcast::channel('my-prefix.{roomKey}', fn ($user, string $roomKey) =>
 
 Then return the matching name from your `ResolvesPresenceChannel` so the client
 subscribes to the same channel.
+
+## Translations
+
+The indicator's own strings — the "go to their view" link and the fallback name for a member without one — ship in every locale Filament ships:
+
+`am` `ar` `az` `bg` `bn` `bs` `ca` `ckb` `cs` `da` `de` `el` `en` `es` `et` `eu` `fa` `fi` `fil` `fr` `he` `hi` `hr` `hu` `hy` `id` `it` `ja` `ka` `km` `ko` `ku` `lt` `lus` `lv` `mk` `mn` `ms` `my` `nb` `ne` `nl` `pl` `pt` `pt_BR` `ro` `ru` `sk` `sl` `sq` `sr_Cyrl` `sr_Latn` `sv` `sw` `tg` `th` `tr` `uk` `ur` `uz` `vi` `zh_CN` `zh_HK` `zh_TW`
+
+The app locale picks the language; the page label in the tooltip is the page's own (already translated) title. Publish the files to change a string or add a language:
+
+```bash
+php artisan vendor:publish --tag=filament-presence-translations
+```
 
 ## Development
 
