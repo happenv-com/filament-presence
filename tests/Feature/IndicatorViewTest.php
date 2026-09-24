@@ -17,7 +17,7 @@ it('renders the indicator without compiling the @livewire directive', function (
         ->and($html)->toContain("'livewire:navigated'")
         ->and($html)->not->toContain("app('livewire')->mount")
         ->and($html)->not->toContain('app("livewire")->mount')
-        ->and($html)->toContain('x-tooltip.html.interactive="tooltipFor(member)"')
+        ->and($html)->toContain('x-tooltip.html.interactive="{ content: tooltipFor(member), theme: $store.theme }"')
         ->and($html)->not->toContain('x-tooltip.raw')
         ->and($html)->toContain('visibilitychange')
         ->and($html)->toContain('statusRing(member)')
