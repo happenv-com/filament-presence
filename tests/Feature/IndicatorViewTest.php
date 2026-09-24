@@ -93,9 +93,20 @@ describe('page header layout', function (): void {
     });
 
     it('seats the heading and the indicator on one line as inline-level boxes', function () use ($render): void {
-        expect($render())->toContain('.fi-header > div:has(.fi-presence-strip) > .fi-header-heading,
-        .fi-header > div:has(.fi-presence-strip) > :has(.fi-presence-strip) {
+        expect($render())->toContain('.fi-header > div:has(.fi-presence-strip) > .fi-header-heading {
             display: inline-block;
+            vertical-align: middle;
+        }');
+    });
+
+    // An inline-block wrapper grows a line box around the strip (room below the
+    // baseline for descenders); `vertical-align: middle` centred that taller box
+    // and left the avatars 3px above the heading's centre. An inline-flex
+    // wrapper is exactly as tall as the strip.
+    it('centres the avatar strip on the heading', function () use ($render): void {
+        expect($render())->toContain('.fi-header > div:has(.fi-presence-strip) > :has(.fi-presence-strip) {
+            display: inline-flex;
+            align-items: center;
             vertical-align: middle;
         }');
     });

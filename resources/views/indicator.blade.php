@@ -65,9 +65,17 @@
         .fi-header > div:has(.fi-presence-strip) {
             display: block;
         }
-        .fi-header > div:has(.fi-presence-strip) > .fi-header-heading,
-        .fi-header > div:has(.fi-presence-strip) > :has(.fi-presence-strip) {
+        .fi-header > div:has(.fi-presence-strip) > .fi-header-heading {
             display: inline-block;
+            vertical-align: middle;
+        }
+        /* inline-flex, not inline-block: an inline-block wrapper grows a line box
+           around the strip (room below the baseline for descenders), and
+           `vertical-align: middle` centres that taller box — which left the
+           avatars 3px above the heading's centre. */
+        .fi-header > div:has(.fi-presence-strip) > :has(.fi-presence-strip) {
+            display: inline-flex;
+            align-items: center;
             vertical-align: middle;
         }
 
