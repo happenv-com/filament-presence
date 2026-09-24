@@ -100,3 +100,25 @@ describe('page header layout', function (): void {
         }');
     });
 });
+
+it('announces location and status once subscribed, and asks members for theirs', function (): void {
+    $html = view('filament-presence::indicator', [
+        'roomKey' => 'products-abc',
+        'channelName' => 'filament-presence.products-abc',
+        'url' => 'https://app/admin/products',
+        'label' => 'Products',
+        'currentUserId' => '1',
+    ])->render();
+
+    // A whisper sent before the subscription succeeds is dropped by the server,
+    // so the announcements live in here(), not straight after Echo.join().
+    $here = substr($html, strpos($html, '.here((users) => {'), 1200);
+
+    expect($here)->toContain('this.announceLocation()')
+        ->and($here)->toContain('this.announceStatus()')
+        ->and($here)->toContain("whisper('state-requested'")
+        // Members already in the room answer the request — `joining` does not
+        // fire for them when this user has another tab open there.
+        ->and($html)->toContain(".listenForWhisper('state-requested', () => {")
+        ->and($html)->not->toContain("this.announceStatus()\n                        this.logEnter()");
+});

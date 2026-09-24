@@ -162,9 +162,23 @@
                         this.currentUrl = window.location.href
                         this.config.url = window.location.href
 
+                        this.ownStatus = this.currentStatus()
+
                         this.presenceChannel = window.Echo.join(this.config.channel)
                             .here((users) => {
                                 this.members = users.map((u) => this.decorate(u))
+
+                                // Subscribed only now: a whisper sent before this
+                                // point is dropped by the server, so members
+                                // already here never learned this tab's URL or
+                                // status. Announce them, and ask everyone for
+                                // theirs — `joining` does not fire for them when
+                                // this user already has another tab in the room.
+                                this.announceLocation()
+                                this.announceStatus()
+                                this.presenceChannel?.whisper('state-requested', {
+                                    id: this.config?.currentUserId,
+                                })
                             })
                             .joining((user) => {
                                 if (
@@ -193,13 +207,14 @@
                                 const m = this.findMember(e.id)
                                 if (m) m.status = e.status
                             })
+                            .listenForWhisper('state-requested', () => {
+                                this.announceLocation()
+                                this.announceStatus()
+                            })
                             .error((err) =>
                                 console.warn('Presence channel error', err),
                             )
 
-                        this.announceLocation()
-                        this.ownStatus = this.currentStatus()
-                        this.announceStatus()
                         this.logEnter()
                         this.heartbeatTimer = setInterval(
                             () => this.logHeartbeat(),
