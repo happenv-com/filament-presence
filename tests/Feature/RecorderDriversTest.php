@@ -33,5 +33,5 @@ it('the null recorder persists nothing and fires no events', function (): void {
 
 it('the activitylog recorder refuses to construct without spatie/activitylog', function (): void {
     expect(function_exists('activity'))->toBeFalse();
-    expect(fn () => new ActivityLogRecorder)->toThrow(RuntimeException::class);
+    expect(fn (): ActivityLogRecorder => new ActivityLogRecorder)->toThrow(RuntimeException::class);
 });

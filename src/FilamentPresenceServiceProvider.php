@@ -48,12 +48,10 @@ class FilamentPresenceServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        $this->app->bind(PresenceRecorder::class, function (): PresenceRecorder {
-            return match (config('filament-presence.recorder', 'database')) {
-                'activitylog' => $this->app->make(ActivityLogRecorder::class),
-                'null' => $this->app->make(NullRecorder::class),
-                default => $this->app->make(DatabaseRecorder::class),
-            };
+        $this->app->bind(PresenceRecorder::class, fn (): PresenceRecorder => match (config('filament-presence.recorder', 'database')) {
+            'activitylog' => $this->app->make(ActivityLogRecorder::class),
+            'null' => $this->app->make(NullRecorder::class),
+            default => $this->app->make(DatabaseRecorder::class),
         });
 
         $router = $this->app->make(Router::class);

@@ -16,7 +16,6 @@ class DefaultMemberResolver implements ResolvesPresenceMember
             id: (string) $user->getAuthIdentifier(),
             name: $this->name($user),
             avatarUrl: method_exists($user, 'getFilamentAvatarUrl') ? $user->getFilamentAvatarUrl() : null,
-            profileUrl: null,
         );
     }
 
