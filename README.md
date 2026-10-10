@@ -87,6 +87,20 @@ public function panel(Panel $panel): Panel
 That's it — every page in the panel now shows presence avatars. By default member
 data comes from the authenticated user's `getFilamentAvatarUrl()` and `name`.
 
+### Hiding the indicator for some sessions
+
+`hideWhen()` renders no indicator — so the session neither joins the channel nor logs a
+visit — while the condition holds, for example while a support operator acts on a user's
+behalf:
+
+```php
+$panel->plugin(FilamentPresencePlugin::make()->hideWhen(fn (): bool => session()->has('impersonated_by')));
+```
+
+This only hides the client. A hand-made request still reaches the log routes and the
+channel, so refuse the same sessions there too (route middleware on the
+`filament-presence` group, and your channel authorization callback).
+
 ## Configuration
 
 Optionally publish the config:

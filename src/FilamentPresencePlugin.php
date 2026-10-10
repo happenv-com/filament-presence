@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Happenv\FilamentPresence;
 
+use Closure;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\View\PanelsRenderHook;
@@ -13,6 +14,9 @@ use Livewire\Livewire;
 
 class FilamentPresencePlugin implements Plugin
 {
+    /** @var (Closure(): bool)|null */
+    private ?Closure $hiddenWhen = null;
+
     public function getId(): string
     {
         return 'happenv-filament-presence';
@@ -33,9 +37,29 @@ class FilamentPresencePlugin implements Plugin
         return resolve(static::class);
     }
 
+    /**
+     * Renders no indicator (so nothing joins the channel or logs a visit) while the condition
+     * holds — e.g. a support operator acting on someone else's behalf, who is not a colleague
+     * browsing the resource. This only hides the client; refuse the log routes and the channel
+     * for the same sessions on the server.
+     *
+     * @param  Closure(): bool  $condition
+     */
+    public function hideWhen(Closure $condition): static
+    {
+        $this->hiddenWhen = $condition;
+
+        return $this;
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hiddenWhen instanceof Closure && ($this->hiddenWhen)();
+    }
+
     private function render(): string
     {
-        if (! $this->shouldCollect()) {
+        if ($this->isHidden() || ! $this->shouldCollect()) {
             return '';
         }
 
