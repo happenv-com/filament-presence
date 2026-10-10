@@ -2,6 +2,20 @@
 
 All notable changes to `filament-presence` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.2.0 - 2026-10-10
+
+### Ukrywanie wskaźnika dla wybranych sesji
+
+`FilamentPresencePlugin::hideWhen(Closure)` — gdy warunek jest prawdziwy, wskaźnik się nie renderuje: sesja nie dołącza do kanału i nie loguje wizyty. Przydatne np. dla operatora supportu działającego w imieniu użytkownika.
+
+```php
+$panel->plugin(FilamentPresencePlugin::make()->hideWhen(fn (): bool => $impersonating));
+
+```
+Ukrywa tylko klienta — trasy logujące i autoryzację kanału trzeba odmówić po stronie aplikacji (README). Bez zmian łamiących: domyślnie widoczny.
+
+**Full Changelog**: https://github.com/happenv-com/filament-presence/compare/v1.1.2...v1.2.0
+
 ## v1.1.2 - 2026-09-24
 
 <!-- Release notes generated using configuration in .github/release.yml at 1.x -->
@@ -44,6 +58,7 @@ Odrzucony `fetch` (chwilowy brak sieci) świadomie **nie** kończy sesji — zos
 ```php
 // config/filament-presence.php
 'reload_on_session_expiry' => true, // domyślnie
+
 
 ```
 Hosty obsługujące wygaśnięcie po swojemu ustawiają `false` — pętla i tak się zatrzymuje, a zdarzenie i tak leci.
