@@ -18,3 +18,19 @@ it('hooks the indicator in after the page heading', function (): void {
     expect($renderHooks)->toHaveKey(PanelsRenderHook::PAGE_HEADER_HEADING_AFTER)
         ->and(FilamentPresencePlugin::make()->getId())->toBe('happenv-filament-presence');
 });
+
+it('is visible unless a hideWhen condition holds', function (): void {
+    $plugin = FilamentPresencePlugin::make();
+
+    expect($plugin->isHidden())->toBeFalse()
+        ->and($plugin->hideWhen(fn (): bool => true)->isHidden())->toBeTrue()
+        ->and($plugin->hideWhen(fn (): bool => false)->isHidden())->toBeFalse();
+});
+
+it('renders no indicator while hidden', function (): void {
+    $plugin = FilamentPresencePlugin::make()->hideWhen(fn (): bool => true);
+
+    $render = new ReflectionMethod($plugin, 'render');
+
+    expect($render->invoke($plugin))->toBe('');
+});
