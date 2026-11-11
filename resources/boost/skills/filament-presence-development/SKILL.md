@@ -13,7 +13,7 @@ description: >-
 
 # Filament Presence
 
-A Filament panel plugin that renders a stack of avatars next to every page heading, showing who else has the same page open (green = viewing, amber = tab in background). It has two independent layers:
+A Filament panel plugin that renders a stack of avatars next to every page heading, showing who else has the same page open (green = viewing, amber = tab in background). It has two layers, separate on the server (the avatars never touch the database, and the log does not depend on the websocket connection), but both started by the same browser script, which runs only when `window.Echo` exists:
 
 - **Live**: an Echo presence channel per page ("room"). The browser joins it; the server only authorizes the channel and supplies each member's payload. No database.
 - **Durable**: the browser posts `enter` / `heartbeat` / `leave` to package routes; a `PresenceRecorder` stores visits and dispatches `UserEnteredPage` / `UserLeftPage`. A scheduled command closes visits whose heartbeat stopped.
@@ -53,7 +53,7 @@ Requirements: PHP 8.3+, Laravel 11-13, Filament `^4.11 || ^5.6`.
 
 ### Broadcasting is the host's job
 
-The indicator calls `window.Echo.join(...)`; without `window.Echo` it shows nothing (the visit log still works). The host must provide:
+The indicator calls `window.Echo.join(...)` and, in the same step, posts `enter` and starts the heartbeat. Without `window.Echo` it does neither: no avatars **and no visit log**, so Echo is required even if you only want the log. The host must provide:
 
 1. A broadcaster: Reverb, Pusher or Ably (`php artisan install:broadcasting`), with `BROADCAST_CONNECTION` set.
 2. Broadcasting auth routes (`Broadcast::routes()` / `channels:` in `bootstrap/app.php`) behind the same guard as the panel, because presence channels are private.
