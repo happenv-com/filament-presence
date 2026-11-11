@@ -237,6 +237,10 @@ The app locale picks the language; the page label in the tooltip is the page's o
 php artisan vendor:publish --tag=filament-presence-translations
 ```
 
+## AI assistants (Laravel Boost)
+
+The package ships a [Laravel Boost](https://laravel.com/docs/boost) skill, `filament-presence-development`, in `resources/boost/skills/`. `php artisan boost:install` (or `boost:update`) offers it to your coding agent: the broadcasting setup the avatars need, per-page opt-in, the extension points, tenant-aware channel authorization, the session log and its events, and testing the log routes.
+
 ## Development
 
 ```bash
