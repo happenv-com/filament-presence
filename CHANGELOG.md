@@ -2,6 +2,17 @@
 
 All notable changes to `filament-presence` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.2.2 - 2026-11-11
+
+<!-- Release notes generated using configuration in .github/release.yml at 1.x -->
+### What's Changed
+
+#### Other
+
+* fix: ship the Sinhala (si) translation Filament now ships by @webard in https://github.com/happenv-com/filament-presence/pull/17
+
+**Full Changelog**: https://github.com/happenv-com/filament-presence/compare/v1.2.1...v1.2.2
+
 ## v1.2.1 - 2026-11-11
 
 <!-- Release notes generated using configuration in .github/release.yml at 1.x -->
@@ -30,6 +41,7 @@ All notable changes to `filament-presence` are documented in this file. Each sec
 
 ```php
 $panel->plugin(FilamentPresencePlugin::make()->hideWhen(fn (): bool => $impersonating));
+
 
 
 ```
@@ -79,6 +91,7 @@ Odrzucony `fetch` (chwilowy brak sieci) świadomie **nie** kończy sesji — zos
 ```php
 // config/filament-presence.php
 'reload_on_session_expiry' => true, // domyślnie
+
 
 
 
