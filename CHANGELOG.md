@@ -2,6 +2,26 @@
 
 All notable changes to `filament-presence` are documented in this file. Each section is written automatically from the GitHub release notes when a release is published — do not edit it by hand.
 
+## v1.2.1 - 2026-11-11
+
+<!-- Release notes generated using configuration in .github/release.yml at 1.x -->
+### What's Changed
+
+#### Dependencies
+
+* chore(deps): bump the github-actions group with 2 updates by @dependabot[bot] in https://github.com/happenv-com/filament-presence/pull/12
+* chore(deps): bump zizmorcore/zizmor-action from 0.6.4 to 0.7.1 in the github-actions group by @dependabot[bot] in https://github.com/happenv-com/filament-presence/pull/13
+* chore(deps): bump the github-actions group with 2 updates by @dependabot[bot] in https://github.com/happenv-com/filament-presence/pull/14
+* chore(deps): bump the github-actions group with 2 updates by @dependabot[bot] in https://github.com/happenv-com/filament-presence/pull/15
+
+#### Other
+
+* ci: run Copilot code review on GitHub-hosted runners by @webard in https://github.com/happenv-com/filament-presence/pull/10
+* chore: configure Laravel Moat by @webard in https://github.com/happenv-com/filament-presence/pull/11
+* docs: ship a Laravel Boost skill by @webard in https://github.com/happenv-com/filament-presence/pull/16
+
+**Full Changelog**: https://github.com/happenv-com/filament-presence/compare/v1.2.0...v1.2.1
+
 ## v1.2.0 - 2026-10-10
 
 ### Ukrywanie wskaźnika dla wybranych sesji
@@ -10,6 +30,7 @@ All notable changes to `filament-presence` are documented in this file. Each sec
 
 ```php
 $panel->plugin(FilamentPresencePlugin::make()->hideWhen(fn (): bool => $impersonating));
+
 
 ```
 Ukrywa tylko klienta — trasy logujące i autoryzację kanału trzeba odmówić po stronie aplikacji (README). Bez zmian łamiących: domyślnie widoczny.
@@ -58,6 +79,7 @@ Odrzucony `fetch` (chwilowy brak sieci) świadomie **nie** kończy sesji — zos
 ```php
 // config/filament-presence.php
 'reload_on_session_expiry' => true, // domyślnie
+
 
 
 ```
